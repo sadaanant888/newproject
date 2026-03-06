@@ -86,6 +86,13 @@ b=["beq","bne","blt","bge","bltu","bgeu"]
 u=["lui","auipc"]
 j=["jal"]
 for k in final:
+    if(k[0] in i):
+        ans=""
+        number = i[3][:-4]  
+        x=format(number, '012b')
+        for j in instruction.keys():
+            if(j==i[0]):
+                ans+=
     if(k[0] in r): 
         ans=""
         if(k[0] in instruction):
