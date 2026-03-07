@@ -86,20 +86,24 @@ b=["beq","bne","blt","bge","bltu","bgeu"]
 u=["lui","auipc"]
 j=["jal"]
 for k in final:
+    # R-TYPE
     if(k[0] in r): 
         ans=""
         if(k[0] in instruction):
-            ans+=instruction[k[0]][0]
+            ans+=instruction[k[0]][0] + " "
         if(k[3] in registers):
-            ans+=registers[k[3]]
+            ans+=registers[k[3]] + " "
         if(k[2] in registers):
-            ans+=registers[k[2]]
+            ans+=registers[k[2]] + " "
         if(k[0] in instruction):
-            ans+=instruction[k[0]][1]
+            ans+=instruction[k[0]][1] + " "
         if(k[1] in registers):
-            ans+=registers[k[1]]
+            ans+=registers[k[1]] + " "
         if(k[0] in instruction):
-            ans+=instruction[k[0]][2]
+            ans+=instruction[k[0]][2] + "\n"
+    
+
+    
 
     
 
