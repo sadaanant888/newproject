@@ -36,7 +36,7 @@ registers={
     "t6":"11111"
 }
 final = []       # will hold instructions as nested lists
-labels = {}      # label -> PC address
+labels = {}      
 pc = 0           # program counter
 
 # Read the file
@@ -48,25 +48,25 @@ out=open("output.txt","w")
 
 # PASS 1: detect labels and build final nested list
 for line in lines:
-    line = line.strip()         # remove spaces
+    line = line.strip()         
     if line == "":
-        continue                # skip empty lines
+        continue                
 
-    if ":" in line:             # line has a label
+    if ":" in line:             
         parts = line.split(":", 1)
-        label = parts[0].strip()    # get label name
-        rest = parts[1].strip()     # instruction after label (if any)
+        label = parts[0].strip()    
+        rest = parts[1].strip()     
 
-        # Check duplicate label
+        
         if label in labels:
             print("Error: duplicate label", label)
             exit()
 
-        # Check invalid label (beginner style)
+        
         invalid = False
-        if label[0] >= "0" and label[0] <= "9":  # cannot start with number
+        if label[0] >= "0" and label[0] <= "9": 
             invalid = True
-        for ch in label:  # only letters, numbers, underscore
+        for ch in label:  
             if not ((ch >= "a" and ch <= "z") or 
                     (ch >= "A" and ch <= "Z") or
                     (ch >= "0" and ch <= "9") or
@@ -76,30 +76,29 @@ for line in lines:
         if invalid:
             print("Error: invalid label", label)
             exit()
-        labels[label] = pc         # store label address
+        labels[label] = pc       
 
-        # If instruction exists after label, process it
+    
         if rest != "":
             instruction_line = rest
 
         else:
-            continue    # no instruction, skip to next line
+            continue    
     else:
-        instruction_line = line     # normal instruction without label
+        instruction_line = line     
 
-    # -------------------------------
-    # Process the instruction into a nested list
-    parts = instruction_line.split()   # split line into words
-    opcode = parts[0]                  # first word is instruction
-    operands = []                      # empty list for operands
 
-    if len(parts) > 1:                 # if operands exist
-        operand_text = parts[1]        # string like "x1,x2,x3"
-        operand_parts = operand_text.split(",")   # split by comma
-        for op in operand_parts:       # remove extra spaces
+    parts = instruction_line.split()   
+    opcode = parts[0]                  
+    operands = []                      
+
+    if len(parts) > 1:                 
+        operand_text = parts[1]        
+        operand_parts = operand_text.split(",")   
+        for op in operand_parts:     
             operands.append(op.strip())
 
-    final.append([opcode] + operands) # add as nested list
+    final.append([opcode] + operands) 
     pc = pc + 4
 
 
@@ -186,11 +185,11 @@ instructions = {
 "jalr":3
 }
 
-# REGISTER CHECK 
+
 def is_register(reg):
     return reg in register
 
-# LABEL VALIDATION 
+
 def valid_label(name):
 
     if name == "":
@@ -205,7 +204,7 @@ def valid_label(name):
 
     return True
 
-# IMMEDIATE CHECK 
+
 def check_imm_range(imm):
 
     try:
@@ -216,7 +215,7 @@ def check_imm_range(imm):
     return -2048 <= val <= 2047
 
 
-# MEMORY PARSER 
+
 def parse_memory(op):
 
     if "(" not in op or ")" not in op:
@@ -233,14 +232,14 @@ def parse_memory(op):
 
     return offset,reg
 
-# ERROR DETECTOR 
+
 def detect_errors(code):
 
     labels = {}
     errors = []
     cleaned = []
 
-    # PREPROCESS 
+    
     for line in code:
 
         if "#" in line:
@@ -250,7 +249,7 @@ def detect_errors(code):
 
         cleaned.append(line)
 
-    # PASS 1 : LABEL COLLECTION
+    
     for i,line in enumerate(cleaned):
 
         temp = line
@@ -273,7 +272,6 @@ def detect_errors(code):
             if temp == "":
                 break
 
-    #  PASS 2 : INSTRUCTION CHECK 
     for i,line in enumerate(cleaned):
 
         if line == "":
@@ -329,7 +327,7 @@ def detect_errors(code):
             if not check_imm_range(imm):
                 errors.append(f"Line {i+1}: Invalid immediate '{imm}'")
 
-        #  LOAD / STORE 
+        #  LOAD/STORE 
         elif inst in ["lw","sw"]:
 
             rd = operands[0]
@@ -361,7 +359,6 @@ def detect_errors(code):
                 if not is_register(rs2):
                     errors.append(f"Line {i+1}: Invalid register '{rs2}'")
 
-    # agar number hai to immediate treat karo
                 if label.isdigit() or (label[0]=="-" and label[1:].isdigit()):
                     if not check_imm_range(label):
                         errors.append(f"Line {i+1}: Invalid immediate '{label}'")
@@ -411,12 +408,9 @@ file.close()
 
 errors = detect_errors(code)
 
-if len(errors) == 0:
-    out.write("No errors found\n")
 
 
-else:
-    out.write("Errors detected:\n\n")
+if len(errors)!=0:
     for e in errors:
         out.write(e + "\n")
     out.close()
@@ -433,28 +427,28 @@ for k in final:
     if(k[0] in r): 
         ans=""
         if(k[0] in instruction):
-            ans+=instruction[k[0]][0] + " "
+            ans+=instruction[k[0]][0]
         if(k[3] in registers):
-            ans+=registers[k[3]] + " "
+            ans+=registers[k[3]]
         if(k[2] in registers):
-            ans+=registers[k[2]] + " "
+            ans+=registers[k[2]]
         if(k[0] in instruction):
-            ans+=instruction[k[0]][1] + " "
+            ans+=instruction[k[0]][1]
         if(k[1] in registers):
-            ans+=registers[k[1]] + " "
+            ans+=registers[k[1]]
         if(k[0] in instruction):
-            ans+=instruction[k[0]][2] + "\n"
+            ans+=instruction[k[0]][2] 
     
     #I-TYPE
     if(k[0] in i):
         ans=""
         # for lw rd,imm(rs1)
         if k[0]==i[0]:
-            imm=k[2]                          ## k[2] is imm(rs1) in lw
-            num = int(imm.split("(")[0])      ## num is int(imm)
+            imm=k[2]                          
+            num = int(imm.split("(")[0])     
             if (num<0):
                 num=num*(-1) 
-                bin_imm=0                     ## bin_imm will store binary of immediate.
+                bin_imm=0                     
                 x=1                     
                 while(num!=0):
                     rem=num%2
@@ -465,7 +459,7 @@ for k in final:
                 bin_imm=bin_imm.rjust(12,'0')
 
                 l=[]                   
-                for xy in bin_imm:                                  ## 2's complement starts from here 
+                for xy in bin_imm:                                 
                     l.append(int(xy))   
                 first_1=0
                 for xy in range(-1,-(len(bin_imm)+1),-1):
@@ -480,12 +474,12 @@ for k in final:
                             l[xy]=0
                 complement=""
                 for xy in l:
-                    complement+=str(xy)                   ##complement ends  ## complement stores 2's complement of immediate
+                    complement+=str(xy)                 
                 
-                ans+=complement+" "
+                ans+=complement
             
-            else:                                 ## for immediate>=0
-                bin_imm=0                          ## bin_imm will store binary of immediate.
+            else:                                
+                bin_imm=0                          
                 x=1                     
                 while(num!=0):
                     rem=num%2
@@ -495,26 +489,26 @@ for k in final:
                 bin_imm=str(bin_imm)
                 bin_imm=bin_imm.rjust(12,'0')
 
-                ans+=bin_imm+ " "
+                ans+=bin_imm
 
             rs1=imm.split("(")[1].split(")")[0]
             if rs1 in registers:
-                ans+=registers[rs1]+" "               ## ans= imm+ rs1
+                ans+=registers[rs1]               
             if k[0] in instruction:
-                ans+=instruction[k[0]][0]+" "         ## ans = imm + rs1+ funct3
+                ans+=instruction[k[0]][0]
             if k[1] in registers:
-                ans+=registers[k[1]]+ " "                 ## ans = imm + rs1+ funct3+ rd
+                ans+=registers[k[1]]
             if k[0] in instruction:
-                ans+=instruction[k[0]][1]+ "\n"          ## ## ans = imm + rs1+ funct3+ rd+ opcode
+                ans+=instruction[k[0]][1]
             
         # except lw
         else:
-            num = int(k[3])                   ## k[3] is imm
-            bin_imm=0                         ## bin_imm will store binary of immediate. Negative immediate not handled.
+            num = int(k[3])                  
+            bin_imm=0                         
             x=1                      
             if (num<0):
                 num=num*(-1) 
-                bin_imm=0                     ## bin_imm will store binary of immediate.
+                bin_imm=0                    
                 x=1                     
                 while(num!=0):
                     rem=num%2
@@ -525,7 +519,7 @@ for k in final:
                 bin_imm=bin_imm.rjust(12,'0')
 
                 l=[]                   
-                for xy in bin_imm:                                  ## 2's complement starts from here 
+                for xy in bin_imm:                                   
                     l.append(int(xy))   
                 first_1=0
                 for xy in range(-1,-(len(bin_imm)+1),-1):
@@ -540,12 +534,12 @@ for k in final:
                             l[xy]=0
                 complement=""
                 for xy in l:
-                    complement+=str(xy)                   ##complement ends  ## complement stores 2's complement of immediate
+                    complement+=str(xy)                  
                 
-                ans+=complement+" "                           ## ans =imm
+                ans+=complement
                 
-            else:                                 ## for immediate>=0
-                bin_imm=0                          ## bin_imm will store binary of immediate.
+            else:                                 
+                bin_imm=0                          
                 x=1                     
                 while(num!=0):
                     rem=num%2
@@ -555,23 +549,23 @@ for k in final:
                 bin_imm=str(bin_imm)
                 bin_imm=bin_imm.rjust(12,'0')
 
-                ans+=bin_imm+ " "
+                ans+=bin_imm
 
             if k[2] in registers:
-                ans+=registers[k[2]]+" "               ## ans= imm+ rs1
+                ans+=registers[k[2]]
             if k[0] in instruction:
-                ans+=instruction[k[0]][0]+" "         ## ans = imm + rs1+ funct3
+                ans+=instruction[k[0]][0]
             if k[1] in registers:
-                ans+=registers[k[1]]+ " "                 ## ans = imm + rs1+ funct3+ rd
+                ans+=registers[k[1]]
             if k[0] in instruction:
-                ans+=instruction[k[0]][1]+ "\n"
+                ans+=instruction[k[0]][1]
 
     # S-TYPE
     if(k[0] in s):
         ans=""
         # eg:- sw rs2,imm(rs1)
-        imm=k[2]                          ## k[2] is imm(rs1)
-        num = int(imm.split("(")[0])      ## num is int(imm)
+        imm=k[2]                          
+        num = int(imm.split("(")[0])      
         if num<0:
             num=num*(-1)
             bin_imm=0
@@ -585,7 +579,7 @@ for k in final:
             bin_imm=bin_imm.rjust(12,'0')
 
             l=[]                   
-            for xy in bin_imm:                                  ## 2's complement starts from here 
+            for xy in bin_imm:                                   
                 l.append(int(xy))   
             first_1=0
             for xy in range(-1,-(len(bin_imm)+1),-1):
@@ -605,13 +599,13 @@ for k in final:
             
             bin_imm=complement
 
-            imm_11_5=""                       ## imm_11_5 will store imm[11:5]
+            imm_11_5=""                       
             y=0
             while(y<7):
                 imm_11_5+=bin_imm[y]  
                 y+=1
     
-            imm_4_0=""                                 ## imm_4_0 will store imm[4:0]
+            imm_4_0=""                                
             y=7
             while(y<12):
                 imm_4_0+=bin_imm[y]
@@ -619,7 +613,7 @@ for k in final:
             
         else:
 
-            bin_imm=0                     ## bin_imm will store binary of immediate. Negative immediate not handled. 
+            bin_imm=0                      
             x=1
             while(num!=0):
                 rem=num%2
@@ -629,13 +623,13 @@ for k in final:
             bin_imm=str(bin_imm)
             bin_imm=bin_imm.rjust(12,'0')
 
-            imm_11_5=""                       ## imm_11_5 will store imm[11:5]
+            imm_11_5=""                      
             y=0
             while(y<7):
                 imm_11_5+=bin_imm[y]  
                 y+=1
 
-            imm_4_0=""                                 ## imm_4_0 will store imm[4:0]
+            imm_4_0=""                                 
             y=7
             while(y<12):
                 imm_4_0+=bin_imm[y]
@@ -643,22 +637,22 @@ for k in final:
 
         
         
-        ans+=imm_11_5+" "                           ## ans =imm[11:5]
+        ans+=imm_11_5                         
 
 
         if k[1] in registers:
-            ans+=registers[k[1]]+ " "              ## ans = imm[11:5] + rs2
+            ans+=registers[k[1]]          
 
         rs1=imm.split("(")[1].split(")")[0]
         if rs1 in registers:
-            ans+=registers[rs1]+" "                ## ans= imm[11:5]+ rs2+ rs1
+            ans+=registers[rs1]              
         if k[0] in instruction:
-            ans+=instruction[k[0]][0]+" "          ## ans = imm[11:5]+ rs2+ rs1+ funct3
+            ans+=instruction[k[0]][0]         
         
-        ans+=imm_4_0+" "                            ## ans = imm[11:5]+ rs2+ rs1+ funct3+ imm[4:0]
+        ans+=imm_4_0                          
 
         if k[0] in instruction:
-            ans+=instruction[k[0]][1]+ "\n"        ## ans = imm[11:5]+ rs2+ rs1+ funct3+ imm[4:0]+ opcode
+            ans+=instruction[k[0]][1]    
     
     # B-TYPE
     if k[0] in b:
@@ -666,8 +660,8 @@ for k in final:
             continue
         # eg:- beq rs1,rs2, imm[12:1]
         ans=""
-        num=int(k[3])      #change kia hai                     ## k[3] is imm
-        bin_imm=0                         ## bin_imm will store binary of immediate
+        num=int(k[3])                        
+        bin_imm=0                         
         x=1
         if num<0:
             num=num*(-1)
@@ -682,7 +676,7 @@ for k in final:
             bin_imm=bin_imm.rjust(12,'0')
 
             l=[]                   
-            for xy in bin_imm:                                  ## 2's complement starts from here 
+            for xy in bin_imm:                                   
                 l.append(int(xy))   
             first_1=0
             for xy in range(-1,-(len(bin_imm)+1),-1):
@@ -719,20 +713,19 @@ for k in final:
             imm_4_1__11 = bin_imm[8:12] + bin_imm[1]          
 
 
-        ans+=imm_12__10_5+ " "           ## ans= imm[12|10:5]
+        ans+=imm_12__10_5        
         
         if k[2] in registers:
-            ans+=registers[k[2]]+ " "         ## ans= imm[12|10:5]+ rs2
+            ans+=registers[k[2]]         
         if k[1] in registers:
-            ans+=registers[k[1]]+ " "         ## ans= imm[12|10:5]+ rs2 + rs1
+            ans+=registers[k[1]]       
         if k[0] in instruction:
-            ans+=instruction[k[0]][0]+ " "    ## ans= imm[12|10:5]+ rs2 + rs1+ funct3
+            ans+=instruction[k[0]][0]    
         
-        ans+=imm_4_1__11+ " "            ## ans= imm[12|10:5]+ rs2 + rs1+ funct3+ imm[4:1|11]
+        ans+=imm_4_1__11        
 
         if k[0] in instruction:
-            ans+=instruction[k[0]][1]+ "\n"    ## ans= imm[12|10:5]+ rs2 + rs1+ funct3+ imm[4:1|11]+ opcode
-
+            ans+=instruction[k[0]][1]  
 
 
     #U -TYPE
@@ -773,7 +766,7 @@ for k in final:
             for xy in l:
                 complement+=str(xy)
     
-            bin_imm=complement            ## store 2's complement
+            bin_imm=complement            
 
         imm_31_12=""
         y=0
@@ -781,20 +774,20 @@ for k in final:
             imm_31_12+=bin_imm[y]
             y+=1
 
-        ans+=imm_31_12+" "
+        ans+=imm_31_12
 
         if k[1] in registers:
-            ans+=registers[k[1]]+" "
+            ans+=registers[k[1]]
 
         if k[0] in instruction:
-            ans+=instruction[k[0]][0]+"\n"
+            ans+=instruction[k[0]][0]
 
 
     # J-TYPE
     if k[0] in j:
         # eg:- jal rd, imm[20:1]
         ans=""
-        num=int(k[2])                          ## k[2] is imm
+        num=int(k[2])                          
     
         if num >= 0:
             bin_imm=0
@@ -807,7 +800,7 @@ for k in final:
             bin_imm=str(bin_imm)
             bin_imm=bin_imm.rjust(21,'0')
     
-        else:                             ## negative immediate
+        else:                             
             num=num*(-1)
             bin_imm=0
             x=1
@@ -820,7 +813,7 @@ for k in final:
             bin_imm=bin_imm.rjust(21,'0')
     
             l=[]
-            for xy in bin_imm:            ## 2's complement starts here
+            for xy in bin_imm:            
                 l.append(int(xy))
             first_1=0
             for xy in range(-1,-(len(bin_imm)+1),-1):
@@ -837,21 +830,23 @@ for k in final:
             for xy in l:
                 complement+=str(xy)
 
-            bin_imm=complement            ## store 2's complement
+            bin_imm=complement           
 
         imm_20=bin_imm[-21]
         imm_10_1=bin_imm[-11:-1]
         imm_11=bin_imm[-12]
         imm_19_12=bin_imm[-20:-12]
 
-        ans+=imm_20+imm_10_1+imm_11+imm_19_12+" "
+        ans+=imm_20+imm_10_1+imm_11+imm_19_12
 
         if k[1] in registers:
-            ans+=registers[k[1]]+ " "
+            ans+=registers[k[1]]
 
         if k[0] in instruction:
-            ans+=instruction[k[0]][0]+ "\n"
-    out.write(ans)
+            ans+=instruction[k[0]][0]
+    
+    out.write(ans+ "\n")
+    
     
 
 
