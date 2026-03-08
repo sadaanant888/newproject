@@ -109,15 +109,50 @@ for k in final:
         if k[0]==i[0]:
             imm=k[2]                          ## k[2] is imm(rs1) in lw
             num = int(imm.split("(")[0])      ## num is int(imm)
-            bin_imm=0,x=1                     ## bin_imm will store binary of immediate. Negative immediate not handled. 
-            while(num!=0):
-                rem=num/2
-                bin_imm=bin_imm+rem*x
-                num=num/2
-                x*=10
-            bin_imm=str(bin_imm)
-            bin_imm=bin_imm.rjust(12,'0') 
-            ans+=bin_imm+" "                           ## ans =imm
+            if (num<0):
+                num=num*(-1) 
+                bin_imm=0                     ## bin_imm will store binary of immediate.
+                x=1                     
+                while(num!=0):
+                    rem=num%2
+                    bin_imm=bin_imm+rem*x
+                    num=num//2
+                    x*=10
+                bin_imm=str(bin_imm)
+                bin_imm=bin_imm.rjust(12,'0')
+
+                l=[]                   
+                for xy in bin_imm:                                  ## 2's complement starts from here 
+                    l.append(int(xy))   
+                first_1=0
+                for xy in range(-1,-(len(bin_imm)+1),-1):
+                    if first_1==0:
+                        if l[xy]==1:
+                            first_1=1
+                    else:
+                        if l[xy]==0:
+                            l[xy]=1
+
+                        else:
+                            l[xy]=0
+                complement=""
+                for xy in l:
+                    complement+=str(xy)                   ##complement ends  ## complement stores 2's complement of immediate
+                
+                ans+=complement+" "
+            
+            else:                                 ## for immediate>=0
+                bin_imm=0                          ## bin_imm will store binary of immediate.
+                x=1                     
+                while(num!=0):
+                    rem=num%2
+                    bin_imm=bin_imm+rem*x
+                    num=num//2
+                    x*=10
+                bin_imm=str(bin_imm)
+                bin_imm=bin_imm.rjust(12,'0')
+
+                ans+=bin_imm+ " "
 
             rs1=imm.split("(")[1].split(")")[0]
             if rs1 in registers:
@@ -128,19 +163,56 @@ for k in final:
                 ans+=registers[k[1]]+ " "                 ## ans = imm + rs1+ funct3+ rd
             if k[0] in instruction:
                 ans+=instruction[k[0]][1]+ "\n"          ## ## ans = imm + rs1+ funct3+ rd+ opcode
-        
+            
         # except lw
         else:
             num = int(k[3])                   ## k[3] is imm
-            bin_imm=0,x=1                     ## bin_imm will store binary of immediate. Negative immediate not handled. 
-            while(num!=0):
-                rem=num/2
-                bin_imm=bin_imm+rem*x
-                num=num/2
-                x*=10
-            bin_imm=str(bin_imm)
-            bin_imm=bin_imm.rjust(12,'0') 
-            ans+=bin_imm+" "                           ## ans =imm
+            bin_imm=0                         ## bin_imm will store binary of immediate. Negative immediate not handled.
+            x=1                      
+            if (num<0):
+                num=num*(-1) 
+                bin_imm=0                     ## bin_imm will store binary of immediate.
+                x=1                     
+                while(num!=0):
+                    rem=num%2
+                    bin_imm=bin_imm+rem*x
+                    num=num//2
+                    x*=10
+                bin_imm=str(bin_imm)
+                bin_imm=bin_imm.rjust(12,'0')
+
+                l=[]                   
+                for xy in bin_imm:                                  ## 2's complement starts from here 
+                    l.append(int(xy))   
+                first_1=0
+                for xy in range(-1,-(len(bin_imm)+1),-1):
+                    if first_1==0:
+                        if l[xy]==1:
+                            first_1=1
+                    else:
+                        if l[xy]==0:
+                            l[xy]=1
+
+                        else:
+                            l[xy]=0
+                complement=""
+                for xy in l:
+                    complement+=str(xy)                   ##complement ends  ## complement stores 2's complement of immediate
+                
+                ans+=complement+" "                           ## ans =imm
+                
+            else:                                 ## for immediate>=0
+                bin_imm=0                          ## bin_imm will store binary of immediate.
+                x=1                     
+                while(num!=0):
+                    rem=num%2
+                    bin_imm=bin_imm+rem*x
+                    num=num//2
+                    x*=10
+                bin_imm=str(bin_imm)
+                bin_imm=bin_imm.rjust(12,'0')
+
+                ans+=bin_imm+ " "
 
             if k[2] in registers:
                 ans+=registers[k[2]]+" "               ## ans= imm+ rs1
