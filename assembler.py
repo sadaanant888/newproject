@@ -294,12 +294,8 @@ for k in final:
 
         if k[0] in instruction:
             ans+=instruction[k[0]][1]    ## ans= imm[12|10:5]+ rs2 + rs1+ funct3+ imm[4:1|11]+ opcode
-
             
     # U-TYPE
     
 
-
-
-    
 
