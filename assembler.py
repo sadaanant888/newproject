@@ -229,22 +229,78 @@ for k in final:
         # eg:- sw rs2,imm(rs1)
         imm=k[2]                          ## k[2] is imm(rs1)
         num = int(imm.split("(")[0])      ## num is int(imm)
-        bin_imm=0,x=1                     ## bin_imm will store binary of immediate. Negative immediate not handled. 
-        while(num!=0):
-            rem=num/2
-            bin_imm=bin_imm+rem*x
-            num=num/2
-            x*=10
-        bin_imm=str(bin_imm)
-        bin_imm=bin_imm.rjust(12,'0')
+        if num<0:
+            num=num*(-1)
+            bin_imm=0
+            x=1
+            while(num!=0):
+                rem=num%2
+                bin_imm=bin_imm+rem*x
+                num=num//2
+                x*=10
+            bin_imm=str(bin_imm)
+            bin_imm=bin_imm.rjust(12,'0')
 
-        imm_11_5=""                       ## imm_11_5 will store imm[11:5]
-        y=0
-        while(y<7):
-            imm_11_5+=bin_imm[y]  
-            y+=1
+            l=[]                   
+            for xy in bin_imm:                                  ## 2's complement starts from here 
+                l.append(int(xy))   
+            first_1=0
+            for xy in range(-1,-(len(bin_imm)+1),-1):
+                if first_1==0:
+                    if l[xy]==1:
+                        first_1=1
+                else:
+                    if l[xy]==0:
+                        l[xy]=1
 
+                    else:
+                        l[xy]=0
+
+            complement=""
+            for xy in l:
+                complement+=str(xy)
+
+            imm_11_5=""                       ## imm_11_5 will store imm[11:5]
+            y=0
+            while(y<7):
+                imm_11_5+=complement[y]  
+                y+=1
+    
+            imm_4_0=""                                 ## imm_4_0 will store imm[4:0]
+            y=7
+            while(y<12):
+                imm_4_0+=complement[y]
+                y+=1
+            
+        else:
+
+            bin_imm=0                     ## bin_imm will store binary of immediate. Negative immediate not handled. 
+            x=1
+            while(num!=0):
+                rem=num%2
+                bin_imm=bin_imm+rem*x
+                num=num//2
+                x*=10
+            bin_imm=str(bin_imm)
+            bin_imm=bin_imm.rjust(12,'0')
+
+            imm_11_5=""                       ## imm_11_5 will store imm[11:5]
+            y=0
+            while(y<7):
+                imm_11_5+=bin_imm[y]  
+                y+=1
+
+            imm_4_0=""                                 ## imm_4_0 will store imm[4:0]
+            y=7
+            while(y<12):
+                imm_4_0+=bin_imm[y]
+                y+=1
+
+        
+        
         ans+=imm_11_5+" "                           ## ans =imm[11:5]
+
+
         if k[1] in registers:
             ans+=registers[k[1]]+ " "              ## ans = imm[11:5] + rs2
 
@@ -269,16 +325,56 @@ for k in final:
         # eg:- beq rs1,rs2, imm[12:1]
         ans=""
         num=k[3]                          ## k[3] is imm
-        bin_imm=0,x=1                     ## bin_imm will store binary of immediate. Negative immediate not handled. 
-        while(num!=0):
-            rem=num/2
-            bin_imm=bin_imm+rem*x
-            num=num/2
-            x*=10
-        bin_imm=str(bin_imm)
-        bin_imm=bin_imm.rjust(16,'0')
+        bin_imm=0                     ## bin_imm will store binary of immediate. Negative immediate not handled.
+        x=1
+        if num<0:
+            num=num*(-1)
+            bin_imm=0
+            x=1
+            while(num!=0):
+                rem=num%2
+                bin_imm=bin_imm+rem*x
+                num=num//2
+                x*=10
+            bin_imm=str(bin_imm)
+            bin_imm=bin_imm.rjust(12,'0')
 
-        imm_12__10_5=bin_imm[-13]+bin_imm[-11:-5]           #imm_12__10_5= imm[12|10:5]= imm[12]+imm[10:5]
+            l=[]                   
+            for xy in bin_imm:                                  ## 2's complement starts from here 
+                l.append(int(xy))   
+            first_1=0
+            for xy in range(-1,-(len(bin_imm)+1),-1):
+                if first_1==0:
+                    if l[xy]==1:
+                        first_1=1
+                else:
+                    if l[xy]==0:
+                        l[xy]=1
+
+                    else:
+                        l[xy]=0
+
+            complement=""
+            for xy in l:
+                complement+=str(xy)
+
+            imm_12__10_5=complement[-13]+complement[-11:-5]
+            imm_4_1__11=complement[-5:-1]+ complement[-12]    #imm_4_1__11= imm[4:1|11]= imm[4:1]+imm[11]
+
+        else:
+            bin_imm=0
+            x=1
+            while(num!=0):
+                rem=num%2
+                bin_imm=bin_imm+rem*x
+                num=num//2
+                x*=10
+            bin_imm=str(bin_imm)
+            bin_imm=bin_imm.rjust(16,'0')
+
+            imm_12__10_5=bin_imm[-13]+bin_imm[-11:-5]           #imm_12__10_5= imm[12|10:5]= imm[12]+imm[10:5]
+            imm_4_1__11=bin_imm[-5:-1]+ bin_imm[-12]    #imm_4_1__11= imm[4:1|11]= imm[4:1]+imm[11]
+
 
         ans+=imm_12__10_5+ " "           ## ans= imm[12|10:5]
         
@@ -289,14 +385,13 @@ for k in final:
         if k[0] in instruction:
             ans+=instruction[k[0]][0]    ## ans= imm[12|10:5]+ rs2 + rs1+ funct3
         
-        imm_4_1__11=bin_imm[-5:-1]+ bin_imm[-12]    #imm_4_1__11= imm[4:1|11]= imm[4:1]+imm[11]
         ans+=imm_4_1__11+ " "            ## ans= imm[12|10:5]+ rs2 + rs1+ funct3+ imm[4:1|11]
 
         if k[0] in instruction:
             ans+=instruction[k[0]][1]    ## ans= imm[12|10:5]+ rs2 + rs1+ funct3+ imm[4:1|11]+ opcode
 
             
-    # U-TYPE
+
     
 
 
