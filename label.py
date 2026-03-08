@@ -158,10 +158,10 @@ instruction={
     "bltu":("110","1100011"),
     "bgeu":("111","1100011"),
     #U-type(opcode)
-    "lui":("0110111"),
-    "auipc":("0010111"),
+    "lui":("0110111",),
+    "auipc":("0010111",),
     #J-type(opcode).  (20 bits imm value)
-    "jal":("1101111")
+    "jal":("1101111",)
 }
 # REGISTER SET
 register = {
@@ -416,14 +416,6 @@ else:
     for e in errors:
         print(e)
 
-
-
-
-
-
-
-
-
 r=["add","sub","sll","slt","sltu","xor","srl","or","and"]
 i=["lw","addi","sltiu","jalr"]
 s=["sw"]
@@ -568,6 +560,58 @@ for k in final:
         if k[0] in instruction:
             ans+=instruction[k[0]][1]    ## ans= imm[12|10:5]+ rs2 + rs1+ funct3+ imm[4:1|11]+ opcode
 
-            
-    # U-TYPE
-    
+    if (k[0] in u): #(imm[31:12],rd,opcode)
+        ans=""
+        num=int(k[2])
+
+        temp=abs(num)
+
+        # decimal → binary
+        bin_imm=""
+        while(temp!=0):
+            rem=temp%2
+            bin_imm=str(rem)+bin_imm
+            temp=temp//2
+
+        bin_imm=bin_imm.rjust(32,'0')
+
+        # negative immediate handle
+        if num < 0:
+
+            l=[]
+            for xy in bin_imm:
+                l.append(int(xy))
+
+            first_1=0
+            for xy in range(-1,-(len(bin_imm)+1),-1):
+                if first_1==0:
+                    if l[xy]==1:
+                        first_1=1
+                else:
+                    if l[xy]==0:
+                        l[xy]=1
+                    else:
+                        l[xy]=0
+
+            complement=""
+            for xy in l:
+                complement+=str(xy)
+
+            bin_imm=complement
+
+        # imm[31:12]
+        imm_31_12=""
+        y=0
+        while(y<20):
+            imm_31_12+=bin_imm[y]
+            y+=1
+
+        ans+=imm_31_12+" "
+
+        # rd
+        if k[1] in registers:
+            ans+=registers[k[1]]+" "
+
+        # opcode
+        if k[0] in instruction:
+            ans+=instruction[k[0]][0]+"\n"
